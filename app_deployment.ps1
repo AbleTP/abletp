@@ -1,5 +1,3 @@
-[CmdletBinding()]
-param ()
 # Set working directory
 $workDir = "C:\ProgramData\AppDeploy"
 New-Item -ItemType Directory -Path $workDir -Force | Out-Null
