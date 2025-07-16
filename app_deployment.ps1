@@ -146,7 +146,7 @@ $latest
 # 1. Adobe Reader DC
 if (-not (Is-AppInstalled "Adobe Acrobat Reader")) {
     Write-Output "Installing Adobe Reader..."
-    $adobeUrl = $MUIurl
+    $adobeUrl = $MUIurl64
     $adobeExe = "$workDir\AdobeReader.exe"
     Download-File $adobeUrl $adobeExe
     Start-Process $adobeExe -ArgumentList "/sAll /rs /rps /msi EULA_ACCEPT=YES /quiet" -Wait
