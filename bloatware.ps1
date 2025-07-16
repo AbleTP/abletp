@@ -162,6 +162,15 @@ if ($manufacturer -like "*Dell*") {
     }
 }
 
+# Download and run C2R VBS from GitHub
+$githubVbsUrl = "https://raw.githubusercontent.com/<your-username>/<your-repo>/main/<your-script>.vbs"
+$tempVbsPath = "$env:TEMP\remote_script.vbs"
+
+Invoke-WebRequest -Uri $githubVbsUrl -OutFile $tempVbsPath
+Start-Process "wscript.exe" -ArgumentList "`"$tempVbsPath`"" -Wait
+Remove-Item $tempVbsPath
+
+
 
 Stop-Transcript
 Write-Output "`n✅ Cleanup complete. Reboot recommended."
