@@ -1,3 +1,5 @@
+[CmdletBinding()]
+param ()
 # Set working directory
 $workDir = "C:\ProgramData\AppDeploy"
 New-Item -ItemType Directory -Path $workDir -Force | Out-Null
@@ -31,8 +33,6 @@ function Is-AppInstalled {
     return $false
 }
 
-[CmdletBinding()]
-param ()
 
 # Function to get the latest version and download URL of Adobe Acrobat Reader DC
 function Get-AdobeAcrobatReaderDCUrls {
