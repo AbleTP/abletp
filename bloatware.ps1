@@ -170,6 +170,16 @@ if ($manufacturer -like "*Dell*") {
     }
 }
 
+# OneDrive uninstall
+$oneDrivePath = "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
+if (Test-Path $oneDrivePath) {
+    Start-Process $oneDrivePath "/uninstall" -NoNewWindow -Wait
+    Write-Output "OneDrive uninstalled."
+}
+
+# OneNote Appx removal
+Remove-AppxEverywhere "OneNote"
+
 Stop-Transcript
 Write-Output "`n✅ Cleanup complete. Reboot recommended."
 exit 0
