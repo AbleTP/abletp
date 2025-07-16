@@ -13,7 +13,7 @@ function Download-File {
 }
 
 # 1. Install Adobe Reader DC
-$adobeUrl = "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2300820415/AcroRdrDC2300820415_en_US.exe"
+$adobeUrl = "https://get.adobe.com/reader/download?os=Windows+10&name=Reader+2025.001.20531+English+Windows%2864Bit%29&lang=en&nativeOs=Windows+10&accepted=cr&declined=mss&preInstalled=&site=landing"
 $adobeExe = "$workDir\AdobeReader.exe"
 Download-File $adobeUrl $adobeExe
 Start-Process $adobeExe -ArgumentList "/sAll /rs /rps /msi EULA_ACCEPT=YES" -Wait
