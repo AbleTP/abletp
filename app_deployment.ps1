@@ -111,9 +111,8 @@ function Get-AdobeAcrobatReaderDCUrls {
 
             $MUImspURL64 = "https://ardownload2.adobe.com/pub/adobe/acrobat/win/AcrobatDC/$mspVersion/AcroRdrDCx64Upd${mspVersion}_MUI.msp"
             Write-Debug "MUI MSP URL 64-bit: $MUImspURL64"
-
-            # Return the extracted information as a PowerShell custom object
-            return [PSCustomObject]@{
+            
+            Write-Output [PSCustomObject]@{
                 Version         = $version
                 ReleaseNotesUrl = $releaseNotesUrl
                 MUIurl          = $MUIurl
@@ -121,6 +120,9 @@ function Get-AdobeAcrobatReaderDCUrls {
                 MUImspURL       = $MUImspURL
                 MUImspURL64     = $MUImspURL64
             }
+            # Return the extracted information as a PowerShell custom object
+            return $MUIurl64
+            
         } else {
             # Handle cases where the .msp file link is not found
             Write-Debug "MSP file link not found."
@@ -144,7 +146,7 @@ $latest
 # 1. Adobe Reader DC
 if (-not (Is-AppInstalled "Adobe Acrobat Reader")) {
     Write-Output "Installing Adobe Reader..."
-    $adobeUrl = $MUIurl64
+    $adobeUrl = $latest
     $adobeExe = "$workDir\AdobeReader.exe"
     Download-File $adobeUrl $adobeExe
     Start-Process $adobeExe -ArgumentList "/sAll /rs /rps /msi EULA_ACCEPT=YES /quiet" -Wait
