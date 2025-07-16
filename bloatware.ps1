@@ -108,6 +108,7 @@ if ($manufacturer -like "*Dell*") {
     Write-Output "Dell system detected..."
 
     $UninstallPrograms = @(
+        "Dell Command | Update for Windows Universal",
         "Dell SupportAssist OS Recovery",
         "Dell SupportAssist",
         "DellInc.DellSupportAssistforPCs",
