@@ -45,16 +45,20 @@ function Force-UninstallApp {
                 Write-Output "Uninstalling: ${name}"
                 try {
                     if ($uninstallCmd -match "msiexec") {
-                        $silentArgs = $uninstallCmd -replace "msiexec\.exe", "" -replace "/I", "/x" + " /qn"
+                        $silentArgs = $uninstallCmd -replace "msiexec\.exe", ""
+                        $silentArgs = $silentArgs -replace "/I", "/x"
+                        $silentArgs += " /qn"
                         Start-Process "msiexec.exe" -ArgumentList $silentArgs -Wait -NoNewWindow
-                    } else {
+                    }
+                    else {
                         if ($uninstallCmd -notmatch "/quiet|/qn|/silent|/s") {
                             $uninstallCmd += " /quiet /norestart"
                         }
                         Start-Process "cmd.exe" -ArgumentList "/c", "$uninstallCmd" -Wait -NoNewWindow
                     }
                     Write-Output "Uninstall command executed for: ${name}"
-                } catch {
+                }
+                catch {
                     Write-Warning "Failed to uninstall ${name}: $_"
                 }
             }
@@ -70,7 +74,8 @@ function Remove-AppxEverywhere {
         try {
             Remove-AppxPackage -Package $pkg.PackageFullName -AllUsers -ErrorAction Stop
             Write-Output "Removed Appx: $($pkg.Name)"
-        } catch {
+        }
+        catch {
             Write-Warning "Failed to remove Appx $($pkg.Name): $_"
         }
     }
@@ -80,7 +85,8 @@ function Remove-AppxEverywhere {
         try {
             Remove-AppxProvisionedPackage -Online -PackageName $prov.PackageName -ErrorAction Stop
             Write-Output "Removed provisioned Appx: $($prov.DisplayName)"
-        } catch {
+        }
+        catch {
             Write-Warning "Failed to remove provisioned Appx $($prov.DisplayName): $_"
         }
     }
@@ -135,19 +141,20 @@ if ($manufacturer -like "*Dell*") {
 
     # Specific uninstalls via QuietUninstallString
     foreach ($target in @(
-        "Dell SupportAssist Remediation",
-        "Dell SupportAssist OS Recovery Plugin for Dell Update"
-    )) {
+            "Dell SupportAssist Remediation",
+            "Dell SupportAssist OS Recovery Plugin for Dell Update"
+        )) {
         $entries = Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall, `
             HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall |
-            Get-ItemProperty | Where-Object { $_.DisplayName -match $target }
+        Get-ItemProperty | Where-Object { $_.DisplayName -match $target }
 
         foreach ($entry in $entries) {
             if ($entry.QuietUninstallString) {
                 try {
                     cmd.exe /c $entry.QuietUninstallString
                     Write-Output "Executed quiet uninstall for $target"
-                } catch {
+                }
+                catch {
                     Write-Warning "Failed to uninstall $target"
                 }
             }
