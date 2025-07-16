@@ -2,20 +2,21 @@
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
 # Download bloatware.ps1 and run from GitHub
-$githubPs1Url = "https://raw.githubusercontent.com/demo7up/abletp/refs/heads/main/bloatware.ps1"
+$githubPs1Url = "https://raw.githubusercontent.com/demo7up/abletp/main/bloatware.ps1"
 $tempPs1Path = "$env:TEMP\bloatware.ps1"
 
-Invoke-WebRequest -Uri $githubPs1Url -OutFile $tempPs1Path
+Invoke-WebRequest -Uri $githubPs1Url -OutFile $tempPs1Path -UseBasicParsing
 
-# Run the PowerShell script
-Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$tempPs1Path`"" -Wait
+Start-Process powershell.exe -ArgumentList "-NoProfile", "-ExecutionPolicy Bypass", "-File", "`"$tempPs1Path`"" -Wait
 
-Remove-Item $tempPs1Path
+Remove-Item $tempPs1Path -Force
 
-# Download and run C2R VBS from GitHub
-$githubVbsUrl = "https://raw.githubusercontent.com/demo7up/abletp/refs/heads/main/remove_c2r.vbs"
-$tempVbsPath = "$env:TEMP\remote_script.vbs"
+# Download and run VBS script silently using CSCRIPT
+$githubVbsUrl = "https://raw.githubusercontent.com/demo7up/abletp/main/remove_c2r.vbs"
+$tempVbsPath = "$env:TEMP\remove_c2r.vbs"
 
-Invoke-WebRequest -Uri $githubVbsUrl -OutFile $tempVbsPath
-Start-Process "wscript.exe" -ArgumentList "`"$tempVbsPath`"" -Wait
-Remove-Item $tempVbsPath
+Invoke-WebRequest -Uri $githubVbsUrl -OutFile $tempVbsPath -UseBasicParsing
+
+cscript.exe //B //Nologo "$tempVbsPath"
+
+Remove-Item $tempVbsPath -Force
