@@ -180,6 +180,21 @@ if (Test-Path $oneDrivePath) {
 # OneNote Appx removal
 Remove-AppxEverywhere "OneNote"
 
+# Must run as Administrator
+# Set system time zone to Eastern Standard Time
+Write-Output "Setting time zone to Eastern Standard Time..."
+Set-TimeZone -Id "Eastern Standard Time"
+
+# Optionally resync with time server
+Write-Output "Forcing time sync with NTP server..."
+w32tm /resync /force
+
+# Confirm result
+Write-Output "✅ Time zone and current time updated."
+Get-TimeZone
+Get-Date
+
+
 Stop-Transcript
 Write-Output "`n✅ Cleanup complete. Reboot recommended."
 exit 0
