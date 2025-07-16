@@ -17,8 +17,16 @@ $tempVbsPath = "$env:TEMP\remove_c2r.vbs"
 
 Invoke-WebRequest -Uri $githubVbsUrl -OutFile $tempVbsPath -UseBasicParsing
 
-$output = & cscript.exe //Nologo "$tempVbsPath"
-$output | Out-File "$env:ProgramData\Debloat\vbs_output.log" -Encoding UTF8 -Force
-Write-Output "VBS output saved to: $env:ProgramData\Debloat\vbs_output.log"
+$logPath = "$env:ProgramData\Debloat\vbs_output.log"
+
+# Run VBS script and capture live output line by line
+$cscript = Start-Process -FilePath "cscript.exe" `
+    -ArgumentList "//Nologo", "`"$tempVbsPath`"" `
+    -NoNewWindow -PassThru -RedirectStandardOutput "$logPath" -Wait
+
+# Display output in PowerShell console after run
+Get-Content $logPath | ForEach-Object { Write-Output $_ }
+
+Write-Output "`nVBS output saved to: $logPath"
 
 Remove-Item $tempVbsPath -Force
