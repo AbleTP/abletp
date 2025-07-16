@@ -9,56 +9,59 @@ function Download-File {
         [string]$url,
         [string]$destination
     )
-    Invoke-WebRequest -Uri $url -OutFile $destination -UseBasicParsing
+    if (-not (Test-Path $destination)) {
+        Invoke-WebRequest -Uri $url -OutFile $destination -UseBasicParsing
+    } else {
+        Write-Output "$destination already exists. Skipping download."
+    }
 }
 
-# 1. Install Adobe Reader DC
-$adobeUrl = "https://get.adobe.com/reader/download?os=Windows+10&name=Reader+2025.001.20531+English+Windows%2864Bit%29&lang=en&nativeOs=Windows+10&accepted=cr&declined=mss&preInstalled=&site=landing"
-$adobeExe = "$workDir\AdobeReader.exe"
-Download-File $adobeUrl $adobeExe
-Start-Process $adobeExe -ArgumentList "/sAll /rs /rps /msi EULA_ACCEPT=YES" -Wait
+# Function to check if app is installed
+function Is-AppInstalled {
+    param([string]$name)
+    $keys = @(
+        "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*",
+        "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
+    )
 
-# 2. Install Google Chrome
-$chromeUrl = "https://dl.google.com/chrome/install/375.126/chrome_installer.exe"
-$chromeExe = "$workDir\Chrome.exe"
-Download-File $chromeUrl $chromeExe
-Start-Process $chromeExe -ArgumentList "/silent /install" -Wait
+    foreach ($key in $keys) {
+        $installed = Get-ItemProperty $key -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -like "*$name*" }
+        if ($installed) { return $true }
+    }
+    return $false
+}
 
-# 3. Install Zoom (per-machine)
-$zoomUrl = "https://zoom.us/client/latest/ZoomInstallerFull.msi"
-$zoomMsi = "$workDir\Zoom.msi"
-Download-File $zoomUrl $zoomMsi
-Start-Process msiexec.exe -ArgumentList "/i `"$zoomMsi`" /quiet /norestart" -Wait
+# 1. Adobe Reader DC
+if (-not (Is-AppInstalled "Adobe Acrobat Reader")) {
+    Write-Output "Installing Adobe Reader..."
+    $adobeUrl = "https://ardownload3.adobe.com/pub/adobe/acrobat/win/AcrobatClassic/2400130123/Acrobat_Classic_Web_x64_WWMUI.exe"
+    $adobeExe = "$workDir\AdobeReader.exe"
+    Download-File $adobeUrl $adobeExe
+    Start-Process $adobeExe -ArgumentList "/sAll /rs /rps /msi EULA_ACCEPT=YES" -Wait
+} else {
+    Write-Output "✅ Adobe Reader is already installed. Skipping."
+}
 
-# # 4. Install Teams (per-machine)
-# $teamsUrl = "https://statics.teams.cdn.office.net/production-windows-x64/1.00.6774.0/Teams_windows_x64.msi"
-# $teamsMsi = "$workDir\Teams.msi"
-# Download-File $teamsUrl $teamsMsi
-# Start-Process msiexec.exe -ArgumentList "/i `"$teamsMsi`" ALLUSERS=1 /quiet /norestart" -Wait
+# 2. Google Chrome
+if (-not (Is-AppInstalled "Google Chrome")) {
+    Write-Output "Installing Google Chrome..."
+    $chromeUrl = "https://dl.google.com/chrome/install/375.126/chrome_installer.exe"
+    $chromeExe = "$workDir\Chrome.exe"
+    Download-File $chromeUrl $chromeExe
+    Start-Process $chromeExe -ArgumentList "/silent /install" -Wait
+} else {
+    Write-Output "✅ Google Chrome is already installed. Skipping."
+}
 
-# # 5. Install Office 365 Business (Microsoft 365 Apps for Business)
-# # Download Office Deployment Tool
-# $odtUrl = "https://download.microsoft.com/download/6/D/4/6D48F0C5-401C-43B2-B3C6-BB46B9CE5A4C/OfficeDeploymentTool.exe"
-# $odtExe = "$workDir\ODT.exe"
-# Download-File $odtUrl $odtExe
-# Start-Process $odtExe -ArgumentList "/quiet /extract:$workDir" -Wait
+# 3. Zoom
+if (-not (Is-AppInstalled "Zoom")) {
+    Write-Output "Installing Zoom..."
+    $zoomUrl = "https://zoom.us/client/latest/ZoomInstallerFull.msi"
+    $zoomMsi = "$workDir\Zoom.msi"
+    Download-File $zoomUrl $zoomMsi
+    Start-Process msiexec.exe -ArgumentList "/i `"$zoomMsi`" /quiet /norestart" -Wait
+} else {
+    Write-Output "✅ Zoom is already installed. Skipping."
+}
 
-# # Create Office configuration XML
-# $officeXml = @"
-# <Configuration>
-#   <Add OfficeClientEdition="64" Channel="MonthlyEnterprise">
-#     <Product ID="O365BusinessRetail">
-#       <Language ID="en-us" />
-#     </Product>
-#   </Add>
-#   <Display Level="None" AcceptEULA="TRUE" />
-#   <Property Name="AUTOACTIVATE" Value="1" />
-# </Configuration>
-# "@
-# $officeConfig = "$workDir\OfficeConfig.xml"
-# $officeXml | Out-File -Encoding UTF8 -FilePath $officeConfig
-
-# # Run Office install
-# Start-Process "$workDir\setup.exe" -ArgumentList "/configure $officeConfig" -Wait
-
-Write-Host "✅ All applications installed. Reboot may be required."
+Write-Host "`n✅ Finished. Reboot may be required."
