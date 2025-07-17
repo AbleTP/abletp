@@ -112,14 +112,14 @@ function Get-AdobeAcrobatReaderDCUrls {
             $MUImspURL64 = "https://ardownload2.adobe.com/pub/adobe/acrobat/win/AcrobatDC/$mspVersion/AcroRdrDCx64Upd${mspVersion}_MUI.msp"
             Write-Debug "MUI MSP URL 64-bit: $MUImspURL64"
 
-            Write-Output [PSCustomObject]@{
-                Version         = $version
-                ReleaseNotesUrl = $releaseNotesUrl
-                MUIurl          = $MUIurl
-                MUIurl64        = $MUIurl64
-                MUImspURL       = $MUImspURL
-                MUImspURL64     = $MUImspURL64
-            }
+            # Write-Output [PSCustomObject]@{
+            #     Version         = $version
+            #     ReleaseNotesUrl = $releaseNotesUrl
+            #     MUIurl          = $MUIurl
+            #     MUIurl64        = $MUIurl64
+            #     MUImspURL       = $MUImspURL
+            #     MUImspURL64     = $MUImspURL64
+            # }
             # Return the extracted information as a PowerShell custom object
             return $MUIurl64
             
