@@ -117,6 +117,7 @@ if ($manufacturer -like "*Dell*") {
         "Dell SupportAssist OS Recovery Plugin for Dell Update",
         "Dell SupportAssistAgent",
         "Dell Update - SupportAssist Update Plugin"
+        "Dell Pair"
     )
 
     $WhitelistedApps = @(
