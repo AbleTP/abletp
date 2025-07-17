@@ -148,7 +148,7 @@ if (-not (Is-AppInstalled "Adobe Acrobat Reader")) {
     Write-Output "Installing Adobe Reader..."
     $adobeUrl = $latest
     $adobeExe = "$workDir\AdobeReader.exe"
-    Download-File $adobeUrl
+    Download-File $adobeUrl $adobeExe
     Start-Process $adobeExe -ArgumentList "/sAll /rs /rps /msi EULA_ACCEPT=YES /quiet" -Wait
 } else {
     Write-Output "✅ Adobe Reader is already installed. Skipping."
