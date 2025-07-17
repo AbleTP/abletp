@@ -467,6 +467,9 @@ Sub Initialize ()
     Set dicDelInUse = CreateObject("Scripting.Dictionary")
     Set dicDelFolder = CreateObject("Scripting.Dictionary")
 
+    ' Keep Apps
+    '----------------------------------------------------
+    dicKeepSku.Add "O365BusinessRetail", "Microsoft 365 Apps for Business"
     ' add initial known .exe files that need to be closed
     '----------------------------------------------------
     dicApps.Add "appvshnotify.exe", "appvshnotify.exe"
@@ -487,7 +490,6 @@ Sub Initialize ()
     dicApps.Add "officeclicktorun.exe", "officeclicktorun.exe"
     dicApps.Add "officeondemand.exe", "officeondemand.exe"
     dicApps.Add "OfficeC2RClient.exe", "OfficeC2RClient.exe"
-    dicKeepSku.Add "O365BusinessRetail", "Microsoft 365 Apps for Business"
 
 End Sub 'Initialize
 
