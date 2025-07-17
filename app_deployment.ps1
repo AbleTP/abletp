@@ -111,7 +111,7 @@ function Get-AdobeAcrobatReaderDCUrls {
 
             $MUImspURL64 = "https://ardownload2.adobe.com/pub/adobe/acrobat/win/AcrobatDC/$mspVersion/AcroRdrDCx64Upd${mspVersion}_MUI.msp"
             Write-Debug "MUI MSP URL 64-bit: $MUImspURL64"
-            
+
             Write-Output [PSCustomObject]@{
                 Version         = $version
                 ReleaseNotesUrl = $releaseNotesUrl
@@ -148,7 +148,7 @@ if (-not (Is-AppInstalled "Adobe Acrobat Reader")) {
     Write-Output "Installing Adobe Reader..."
     $adobeUrl = $latest
     $adobeExe = "$workDir\AdobeReader.exe"
-    Download-File $adobeUrl $adobeExe
+    Download-File $adobeUrl
     Start-Process $adobeExe -ArgumentList "/sAll /rs /rps /msi EULA_ACCEPT=YES /quiet" -Wait
 } else {
     Write-Output "✅ Adobe Reader is already installed. Skipping."
