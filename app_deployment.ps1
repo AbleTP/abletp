@@ -176,4 +176,13 @@ if (-not (Is-AppInstalled "Zoom")) {
     Write-Output "✅ Zoom is already installed. Skipping."
 }
 
+
+#Pin Outlook to taskbar
+$OutlookPath = "$env:ProgramFiles\Microsoft Office\root\Office16\OUTLOOK.EXE"
+$Shell = New-Object -ComObject Shell.Application
+$Folder = $Shell.Namespace((Split-Path $OutlookPath))
+$Item = $Folder.ParseName((Split-Path $OutlookPath -Leaf))
+$Item.InvokeVerb("Pin to Tas&kbar")
+Write-Host "`nOutlook pinned to taskbar."
+
 Write-Host "`n✅ Finished. Reboot may be required."
