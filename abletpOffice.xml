@@ -1,0 +1,18 @@
+<Configuration ID="dc158f2a-1997-4575-a0f9-e88f8dfd9189">
+  <Add OfficeClientEdition="64" Channel="Monthly">
+    <Product ID="O365BusinessRetail">
+      <Language ID="en-us" />
+      <ExcludeApp ID="Lync" />
+    </Product>
+    <Product ID="ProofingTools">
+      <Language ID="en-us" />
+    </Product>
+  </Add>
+  <Property Name="PinIconsToTaskbar" Value="FALSE" />
+  <Updates Enabled="TRUE" />
+  <RemoveMSI />
+  <AppSettings>
+    <Setup Name="Company" Value="My Company" />
+  </AppSettings>
+  <Display Level="Full" AcceptEULA="TRUE" />
+</Configuration>
