@@ -23,7 +23,7 @@ Start-Process powershell.exe -ArgumentList "-NoProfile", "-ExecutionPolicy Bypas
 
 Remove-Item $tempPs1Path -Force
 
-# Download device_rename.ps1 and run from GitHub
+# Download app_deployment and run from GitHub
 $githubPs1Url = "https://raw.githubusercontent.com/AbleTP/abletp/main/app_deployment.ps1"
 $tempPs1Path = "$env:TEMP\app_deployment.ps1"
 
