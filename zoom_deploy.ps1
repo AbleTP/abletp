@@ -1,3 +1,14 @@
+
+# Zoom policy settings
+$zoomPolicyPath = "HKLM:\SOFTWARE\Policies\Zoom\Zoom Meetings\General"
+New-Item -Path $zoomPolicyPath -Force | Out-Null
+
+# Disable auto-update
+Set-ItemProperty -Path $zoomPolicyPath -Name "EnableAutoUpdate" -Value 0 -Type DWord
+
+# Enable HD video
+Set-ItemProperty -Path $zoomPolicyPath -Name "EnableHDVideo" -Value 1 -Type DWord
+
 # Ensure execution policy allows running scripts
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
@@ -65,5 +76,5 @@ $zoomUrl = "https://zoom.us/client/6.3.11.60501/ZoomInstallerFull.msi"
 $zoomMsi = "$workDir\Zoom.msi"
 Download-File $zoomUrl $zoomMsi
 Write-Output "Installing Zoom..."
-Start-Process msiexec.exe -ArgumentList "/i `"$zoomMsi`" ZConfig=`"AU2_EnableAutoUpdate=0`" /quiet /norestart" -Wait
+Start-Process msiexec.exe -ArgumentList "/i `"$zoomMsi`" /quiet /norestart" -Wait
 Write-Output "✅ Zoom installation complete."
