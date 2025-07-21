@@ -74,6 +74,7 @@ if ($uninstallString) {
 # Download and install Zoom
 $zoomUrl = "https://zoom.us/client/6.3.11.60501/ZoomInstallerFull.msi?archType=x64"
 $zoomMsi = "$workDir\Zoom.msi"
+Remove-Item $zoomMsi
 Download-File $zoomUrl $zoomMsi
 Write-Output "Installing Zoom..."
 Start-Process msiexec.exe -ArgumentList "/i `"$zoomMsi`" /quiet /norestart" -Wait
