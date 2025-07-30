@@ -176,17 +176,6 @@ if (-not (Is-AppInstalled "Zoom")) {
     Write-Output "✅ Zoom is already installed. Skipping."
 }
 
-# 4. Cisco Duo
-if (-not (Is-AppInstalled "Cisco Duo")) {
-    Write-Output "Installing Cisco Duo..."
-    $duoUrl = "https://dl.duosecurity.com/duo-win-login-5.1.1.exe"
-    $duoExe = "$workDir\duo-win-login-5.1.1.exe"
-    Download-File $duoUrl $duoExe
-    Start-Process $duoExe -ArgumentList "/silent /install" -Wait
-} else {
-    Write-Output "✅ Cisco Duo is already installed. Skipping."
-}
-
 #Pin Outlook to taskbar
 $OutlookPath = "$env:ProgramFiles\Microsoft Office\root\Office16\OUTLOOK.EXE"
 $Shell = New-Object -ComObject Shell.Application
