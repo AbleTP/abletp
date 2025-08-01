@@ -1,1 +1,1 @@
-setup.exe /download abletpOffice.xml
+setup.exe /configure abletpOffice.xml
