@@ -118,7 +118,8 @@ if ($manufacturer -like "*Dell*") {
         "Dell SupportAssistAgent",
         "Dell Update - SupportAssist Update Plugin",
         "Dell Pair",
-        "Dell Trusted Device"
+        "Dell Trusted Device",
+        "Dell Watchdog Timer"
     )
 
     $WhitelistedApps = @(
