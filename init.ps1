@@ -1,34 +1,55 @@
-# Ensure execution policy allows running scripts
+# Run as Administrator
+
+$ErrorActionPreference = "Stop"
+
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
-# Download and run VBS script silently using CSCRIPT
-$githubPs1Url = "https://github.com/AbleTP/abletp/blob/main/office.ps1"
-$tempPs1Path = "$env:TEMP\office.ps1"
+$Scripts = @(
+    @{
+        Name = "office.ps1"
+        Url  = "https://raw.githubusercontent.com/AbleTP/abletp/main/office.ps1"
+    },
+    @{
+        Name = "bloatware.ps1"
+        Url  = "https://raw.githubusercontent.com/AbleTP/abletp/main/bloatware.ps1"
+    },
+    @{
+        Name = "app_deployment.ps1"
+        Url  = "https://raw.githubusercontent.com/AbleTP/abletp/main/app_deployment.ps1"
+    }
+)
 
-Invoke-WebRequest -Uri $githubPs1Url -OutFile $tempPs1Path -UseBasicParsing
+foreach ($Script in $Scripts) {
 
-Start-Process powershell.exe -ArgumentList "-NoProfile", "-ExecutionPolicy Bypass", "-File", "`"$tempPs1Path`"" -Wait
+    $TempPath = Join-Path $env:TEMP $Script.Name
 
-Remove-Item $tempPs1Path -Force
+    Write-Host ""
+    Write-Host "Downloading $($Script.Name)..." -ForegroundColor Cyan
 
-# Download bloatware.ps1 and run from GitHub
-$githubPs1Url = "https://raw.githubusercontent.com/AbleTP/abletp/main/bloatware.ps1"
-$tempPs1Path = "$env:TEMP\bloatware.ps1"
+    Invoke-WebRequest `
+        -Uri $Script.Url `
+        -OutFile $TempPath `
+        -UseBasicParsing
 
-Invoke-WebRequest -Uri $githubPs1Url -OutFile $tempPs1Path -UseBasicParsing
+    if (!(Test-Path $TempPath)) {
+        throw "Failed to download $($Script.Name)"
+    }
 
-Start-Process powershell.exe -ArgumentList "-NoProfile", "-ExecutionPolicy Bypass", "-File", "`"$tempPs1Path`"" -Wait
+    Write-Host "Running $($Script.Name)..." -ForegroundColor Green
 
-Remove-Item $tempPs1Path -Force
+    $Process = Start-Process powershell.exe `
+        -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$TempPath`"" `
+        -Wait `
+        -PassThru
 
-# Download app_deployment and run from GitHub
-$githubPs1Url = "https://raw.githubusercontent.com/AbleTP/abletp/main/app_deployment.ps1"
-$tempPs1Path = "$env:TEMP\app_deployment.ps1"
+    Write-Host "$($Script.Name) exited with code $($Process.ExitCode)"
 
-Invoke-WebRequest -Uri $githubPs1Url -OutFile $tempPs1Path -UseBasicParsing
+    if ($Process.ExitCode -ne 0) {
+        throw "$($Script.Name) failed with exit code $($Process.ExitCode)"
+    }
 
-Start-Process powershell.exe -ArgumentList "-NoProfile", "-ExecutionPolicy Bypass", "-File", "`"$tempPs1Path`"" -Wait
+    Remove-Item $TempPath -Force -ErrorAction SilentlyContinue
+}
 
-Remove-Item $tempPs1Path -Force
-
-
+Write-Host ""
+Write-Host "All scripts completed successfully." -ForegroundColor Green
