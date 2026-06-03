@@ -2,16 +2,14 @@
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
 # Download and run VBS script silently using CSCRIPT
-$githubVbsUrl = "https://raw.githubusercontent.com/AbleTP/abletp/main/remove_c2r.vbs"
-$tempVbsPath = "$env:TEMP\remove_c2r.vbs"
+$githubPs1Url = "https://github.com/AbleTP/abletp/blob/main/office.ps1"
+$tempPs1Path = "$env:TEMP\office.ps1"
 
-Invoke-WebRequest -Uri $githubVbsUrl -OutFile $tempVbsPath -UseBasicParsing
+Invoke-WebRequest -Uri $githubPs1Url -OutFile $tempPs1Path -UseBasicParsing
 
-$output = & cscript.exe //Nologo "$tempVbsPath"
-$output | Out-File "$env:ProgramData\Debloat\vbs_output.log" -Encoding UTF8 -Force
-Write-Output "VBS output saved to: $env:ProgramData\Debloat\vbs_output.log"
+Start-Process powershell.exe -ArgumentList "-NoProfile", "-ExecutionPolicy Bypass", "-File", "`"$tempPs1Path`"" -Wait
 
-Remove-Item $tempVbsPath -Force
+Remove-Item $tempPs1Path -Force
 
 # Download bloatware.ps1 and run from GitHub
 $githubPs1Url = "https://raw.githubusercontent.com/AbleTP/abletp/main/bloatware.ps1"
