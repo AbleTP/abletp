@@ -1,10 +1,20 @@
 # =========================================================
-# ThreatLocker Uninstall Script
+# ThreatLocker Full Uninstall Script
 # =========================================================
 
 $ErrorActionPreference = 'SilentlyContinue'
 
 $StubPath = "C:\ThreatLockerStub.exe"
+$LogPath  = "C:\ThreatLocker_Uninstall_Log.txt"
+
+function Write-Log {
+    param([string]$Message)
+    $Line = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $Message"
+    Write-Host $Line
+    Add-Content -Path $LogPath -Value $Line
+}
+
+Write-Log "Starting ThreatLocker removal..."
 
 # Determine architecture
 if ([Environment]::Is64BitOperatingSystem) {
@@ -14,53 +24,87 @@ else {
     $DownloadUrl = "https://api.threatlocker.com/updates/installers/threatlockerstubx86.exe"
 }
 
-Write-Host "Downloading ThreatLocker uninstall stub..."
+# Force TLS 1.2
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+Write-Log "Downloading ThreatLocker uninstall stub..."
 
 try {
     Invoke-WebRequest -Uri $DownloadUrl -OutFile $StubPath -UseBasicParsing
 }
 catch {
-    Write-Host "Invoke-WebRequest failed, attempting BITS download..."
-
-    Start-BitsTransfer `
-        -Source $DownloadUrl `
-        -Destination $StubPath
+    Write-Log "Invoke-WebRequest failed. Trying BITS..."
+    Start-BitsTransfer -Source $DownloadUrl -Destination $StubPath
 }
 
 if (-not (Test-Path $StubPath)) {
-    Write-Host "Failed to download ThreatLocker stub."
+    Write-Log "Failed to download ThreatLocker stub."
     exit 1
 }
 
-Write-Host "Running ThreatLocker uninstall..."
+Write-Log "Running ThreatLocker uninstall..."
 
-$process = Start-Process `
+$Process = Start-Process `
     -FilePath $StubPath `
     -ArgumentList "uninstall" `
     -Wait `
     -PassThru
 
-Start-Sleep -Seconds 10
+Start-Sleep -Seconds 20
 
-Write-Host "Verifying uninstall..."
+Write-Log "Stopping remaining ThreatLocker services if present..."
 
-$Service = Get-Service -Name "ThreatLockerService" -ErrorAction SilentlyContinue
+Get-Service | Where-Object {
+    $_.Name -like "*ThreatLocker*" -or $_.DisplayName -like "*ThreatLocker*"
+} | ForEach-Object {
+    Stop-Service $_.Name -Force
+}
 
-if ($null -eq $Service) {
-    Write-Host "ThreatLocker uninstalled successfully"
+Write-Log "Removing remaining ThreatLocker services if present..."
 
-    if (Test-Path $StubPath) {
-        Remove-Item $StubPath -Force
+Get-Service | Where-Object {
+    $_.Name -like "*ThreatLocker*" -or $_.DisplayName -like "*ThreatLocker*"
+} | ForEach-Object {
+    sc.exe delete $_.Name | Out-Null
+}
+
+Write-Log "Removing ThreatLocker scheduled tasks..."
+
+Get-ScheduledTask | Where-Object {
+    $_.TaskName -like "*ThreatLocker*" -or $_.TaskPath -like "*ThreatLocker*"
+} | ForEach-Object {
+    Unregister-ScheduledTask -TaskName $_.TaskName -TaskPath $_.TaskPath -Confirm:$false
+}
+
+Write-Log "Removing leftover folders..."
+
+$Paths = @(
+    "C:\Program Files\ThreatLocker",
+    "C:\Program Files (x86)\ThreatLocker",
+    "C:\ProgramData\ThreatLocker",
+    "C:\ThreatLockerStub.exe"
+)
+
+foreach ($Path in $Paths) {
+    if (Test-Path $Path) {
+        Remove-Item $Path -Recurse -Force
+        Write-Log "Removed: $Path"
     }
+}
 
+Write-Log "Checking final status..."
+
+$RemainingServices = Get-Service | Where-Object {
+    $_.Name -like "*ThreatLocker*" -or $_.DisplayName -like "*ThreatLocker*"
+}
+
+$RemainingFolders = $Paths | Where-Object { Test-Path $_ }
+
+if (-not $RemainingServices -and -not $RemainingFolders) {
+    Write-Log "ThreatLocker removed successfully."
     exit 0
 }
 else {
-    Write-Host "ThreatLocker failed to uninstall"
-
-    if (Test-Path $StubPath) {
-        Remove-Item $StubPath -Force
-    }
-
+    Write-Log "ThreatLocker removal completed, but leftovers were detected."
     exit 1
 }
