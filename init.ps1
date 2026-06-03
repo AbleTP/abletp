@@ -1,55 +1,54 @@
 # Run as Administrator
 
 $ErrorActionPreference = "Stop"
-
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
 $Scripts = @(
-    @{
-        Name = "office.ps1"
-        Url  = "https://raw.githubusercontent.com/AbleTP/abletp/main/office.ps1"
-    },
-    @{
-        Name = "bloatware.ps1"
-        Url  = "https://raw.githubusercontent.com/AbleTP/abletp/main/bloatware.ps1"
-    },
-    @{
-        Name = "app_deployment.ps1"
-        Url  = "https://raw.githubusercontent.com/AbleTP/abletp/main/app_deployment.ps1"
-    }
+    "office.ps1",
+    "bloatware.ps1",
+    "app_deployment.ps1"
 )
 
-foreach ($Script in $Scripts) {
+foreach ($ScriptName in $Scripts) {
 
-    $TempPath = Join-Path $env:TEMP $Script.Name
+    $Url = "https://raw.githubusercontent.com/AbleTP/abletp/main/$ScriptName"
+    $TempPath = Join-Path $env:TEMP $ScriptName
 
     Write-Host ""
-    Write-Host "Downloading $($Script.Name)..." -ForegroundColor Cyan
+    Write-Host "========================================"
+    Write-Host "Downloading: $ScriptName"
+    Write-Host "URL: $Url"
+    Write-Host "========================================"
 
-    Invoke-WebRequest `
-        -Uri $Script.Url `
-        -OutFile $TempPath `
-        -UseBasicParsing
+    Remove-Item $TempPath -Force -ErrorAction SilentlyContinue
+
+    Invoke-WebRequest -Uri $Url -OutFile $TempPath -UseBasicParsing
 
     if (!(Test-Path $TempPath)) {
-        throw "Failed to download $($Script.Name)"
+        throw "Download failed: $ScriptName"
     }
 
-    Write-Host "Running $($Script.Name)..." -ForegroundColor Green
+    $Size = (Get-Item $TempPath).Length
+    Write-Host "Downloaded $ScriptName - Size: $Size bytes"
 
-    $Process = Start-Process powershell.exe `
-        -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$TempPath`"" `
-        -Wait `
-        -PassThru
+    if ($Size -lt 50) {
+        Get-Content $TempPath
+        throw "$ScriptName downloaded incorrectly or is empty."
+    }
 
-    Write-Host "$($Script.Name) exited with code $($Process.ExitCode)"
+    Write-Host "Running: $ScriptName"
 
-    if ($Process.ExitCode -ne 0) {
-        throw "$($Script.Name) failed with exit code $($Process.ExitCode)"
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $TempPath
+
+    $ExitCode = $LASTEXITCODE
+    Write-Host "$ScriptName finished with exit code: $ExitCode"
+
+    if ($ExitCode -ne 0) {
+        throw "$ScriptName failed with exit code $ExitCode"
     }
 
     Remove-Item $TempPath -Force -ErrorAction SilentlyContinue
 }
 
 Write-Host ""
-Write-Host "All scripts completed successfully." -ForegroundColor Green
+Write-Host "All scripts completed."
