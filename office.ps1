@@ -307,5 +307,3 @@ Write-Host "Microsoft 365 Apps installation completed."
 Write-Host ""
 Write-Host "COMPLETE"
 Write-Host "REBOOTING"
-
-Restart-Computer -Force
